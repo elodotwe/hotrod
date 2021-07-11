@@ -76,6 +76,10 @@ int main()
       printf("client message type %d, %s\n", clientMessageEvent->type, name);
       break;
     }
+    case XCB_EXPOSE: {
+      exposed(connection);
+      break;
+    }
     default: {
       /* Unknown event type, ignore it */
       printf("unknown response type %d\n", event->response_type & ~0x80);

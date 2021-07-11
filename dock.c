@@ -5,6 +5,10 @@
 
 #include "dock.h"
 #define DOCK_HEIGHT  30
+
+xcb_gcontext_t graphicsContext;
+xcb_drawable_t dockWindow;
+
 xcb_atom_t getAtomWithName(xcb_connection_t *connection, char *name)
 {
     xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(connection, xcb_intern_atom(connection, 0, strlen(name), name), NULL);
@@ -12,17 +16,24 @@ xcb_atom_t getAtomWithName(xcb_connection_t *connection, char *name)
     return reply->atom;
 }
 
+void drawClock(xcb_connection_t *connection, xcb_drawable_t dockWindow, xcb_gcontext_t graphicsContext) {
+    char* text = "Clock goes here lolol";
+    xcb_image_text_8(connection, strlen(text), dockWindow, graphicsContext, 10,20, text);
+    xcb_flush(connection);
+}
+
 void buildDock(xcb_connection_t *connection, xcb_screen_t *screen, xcb_drawable_t rootWindow)
 {
-    xcb_gcontext_t foreground = xcb_generate_id(connection);
-    uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_GRAPHICS_EXPOSURES;
-    uint32_t values[2];
+    graphicsContext = xcb_generate_id(connection);
+    uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_BACKGROUND | XCB_GC_GRAPHICS_EXPOSURES;
+    uint32_t values[3];
     values[0] = screen->black_pixel;
-    values[1] = 0;
-    xcb_create_gc(connection, foreground, rootWindow, mask, values);
+    values[1] = screen->white_pixel;
+    values[2] = 0;
+    xcb_create_gc(connection, graphicsContext, rootWindow, mask, values);
 
     /* Ask for our window's Id */
-    xcb_drawable_t dockWindow = xcb_generate_id(connection);
+    dockWindow = xcb_generate_id(connection);
 
     /* Create the window */
     mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
@@ -107,4 +118,13 @@ void buildDock(xcb_connection_t *connection, xcb_screen_t *screen, xcb_drawable_
 
     /* We flush the request */
     xcb_flush(connection);
+
+    drawClock(connection, dockWindow, graphicsContext);
+
+}
+
+void exposed(xcb_connection_t *connection) {
+    printf("drawing\n");
+    drawClock(connection, dockWindow, graphicsContext);
+
 }
