@@ -2,6 +2,7 @@
 #include <xcb/xcb.h>
 #include <xcb/xcb_icccm.h>
 #include <string.h>
+#include <time.h>
 
 #include "dock.h"
 #define DOCK_HEIGHT  30
@@ -17,7 +18,14 @@ xcb_atom_t getAtomWithName(xcb_connection_t *connection, char *name)
 }
 
 void drawClock(xcb_connection_t *connection, xcb_drawable_t dockWindow, xcb_gcontext_t graphicsContext) {
-    char* text = "Clock goes here lolol";
+    char* text;
+    time_t currentTime;
+    struct tm *localTime;
+    currentTime = time(NULL);
+    localTime = localtime(&currentTime);
+    text = asctime(localTime);
+    printf("asctime returned '%s'\n", text);
+    text[strlen(text)-1] = '\0'; // trim the newline off
     xcb_image_text_8(connection, strlen(text), dockWindow, graphicsContext, 10,20, text);
     xcb_flush(connection);
 }
