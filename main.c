@@ -24,8 +24,6 @@ int main()
   xcb_flush(connection); // window attributes won't be changed until we explicitly flush
   
   buildDock(connection, screen, rootWindow);
-  buildDock(connection, screen, rootWindow);
-  buildDock(connection, screen, rootWindow);
 
   xcb_generic_event_t *event;
   while ((event = xcb_wait_for_event (connection))) {
@@ -34,7 +32,7 @@ int main()
     // if it was or wasn't, so we flip that bit off before checking what the response type was.
     switch (event->response_type & ~0x80) {
     case XCB_PROPERTY_NOTIFY: {
-      xcb_property_notify_event_t *propertyNotifyEvent = (void *) event;
+      xcb_property_notify_event_t *propertyNotifyEvent = (xcb_property_notify_event_t *) event;
       xcb_get_atom_name_reply_t *atomNameReply = xcb_get_atom_name_reply(
           connection,
           xcb_get_atom_name(connection, propertyNotifyEvent->atom),
@@ -45,7 +43,7 @@ int main()
       switch (propertyNotifyEvent->atom) {
         case 354: {        
           xcb_get_property_reply_t *reply = xcb_get_property_reply(connection, xcb_get_property(connection, 0, rootWindow, getAtomWithName(connection, "_NET_ACTIVE_WINDOW"), getAtomWithName(connection, "WINDOW"), 0, 1), NULL);
-          xcb_window_t *activeWindow = xcb_get_property_value(reply);
+          xcb_window_t *activeWindow = (xcb_window_t*)xcb_get_property_value(reply);
           printf("  active window is now %d\n", *activeWindow);
           // free(activeWindow);
 
@@ -54,7 +52,7 @@ int main()
             printf("null reply\n");
             break;
           }
-          char *activeWindowTitle = xcb_get_property_value(titleReply);
+          char *activeWindowTitle = (char*)xcb_get_property_value(titleReply);
           if (activeWindowTitle == NULL) {
             printf("null value\n");
             break;
@@ -68,7 +66,7 @@ int main()
       break;
     }
     case XCB_CLIENT_MESSAGE: {
-      xcb_client_message_event_t *clientMessageEvent = (void *) event;
+      xcb_client_message_event_t *clientMessageEvent = (xcb_client_message_event_t *) event;
       xcb_get_atom_name_reply_t *atomNameReply = xcb_get_atom_name_reply(
           connection,
           xcb_get_atom_name(connection, clientMessageEvent->type),
