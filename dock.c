@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <xcb/xcb.h>
+#include <xcb/xcb_icccm.h>
 #include <string.h>
 
 #include "dock.h"
@@ -10,22 +11,6 @@ xcb_atom_t getAtomWithName(xcb_connection_t *connection, char *name)
     printf("atom id for %s is %d\n", name, reply->atom);
     return reply->atom;
 }
-
-typedef struct {
-    long flags;    /* marks which fields in this structure are defined */
-    int x, y;    /* Obsolete */
-    int width, height;    /* Obsolete */
-    int min_width, min_height;
-    int max_width, max_height;
-    int width_inc, height_inc;
-    struct {
-           int x;    /* numerator */
-           int y;    /* denominator */
-    } min_aspect, max_aspect;
-    int base_width, base_height;
-    int win_gravity;
-    /* this structure may be extended in the future */
-} XSizeHints;
 
 void buildDock(xcb_connection_t *connection, xcb_screen_t *screen, xcb_drawable_t rootWindow)
 {
@@ -102,19 +87,8 @@ void buildDock(xcb_connection_t *connection, xcb_screen_t *screen, xcb_drawable_
         strutValues
     );
 
-    //uint32_t sizing[] = {0, 400, screen->width_in_pixels, 50};
-    //xcb_configure_window(connection, dockWindow, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, sizing);
-    //xcb_translate_coordinates(connection, dockWindow, rootWindow, 0, 50);
-
-    XSizeHints sizeHints = { 0 };
-    long PPosition = 4;
-    long PSize = 8;
-    sizeHints.flags = PPosition | PSize;
-    // sizeHints.x = 0;
-    // sizeHints.y = screen->height_in_pixels - 50;
-    // sizeHints.height = 50;
-    // sizeHints.width = screen->width_in_pixels;
-
+    xcb_size_hints_t sizeHints = { 0 };
+    sizeHints.flags = XCB_ICCCM_SIZE_HINT_P_POSITION | XCB_ICCCM_SIZE_HINT_P_SIZE;
     
     xcb_change_property(
         connection,
