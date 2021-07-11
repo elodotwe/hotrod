@@ -25,7 +25,7 @@ void buildDock(xcb_connection_t *connection, xcb_screen_t *screen, xcb_drawable_
 
     /* Create the window */
     mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-    values[0] = screen->white_pixel;
+    values[0] = screen->black_pixel;
     values[1] = XCB_EVENT_MASK_EXPOSURE;
     xcb_create_window(connection,                    /* Connection          */
                       XCB_COPY_FROM_PARENT,          /* depth               */
