@@ -9,3 +9,6 @@ include(FindPkgConfig)
 pkg_search_module(XCB REQUIRED xcb)
 include_directories(${XCB_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${XCB_LIBRARIES})
+
+find_package(Threads REQUIRED)
+target_link_libraries(${PROJECT_NAME} Threads::Threads)

@@ -3,12 +3,15 @@
 #include <xcb/xcb_icccm.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
+#include <pthread.h>
 
 #include "dock.h"
 #define DOCK_HEIGHT  30
 
 xcb_gcontext_t graphicsContext;
 xcb_drawable_t dockWindow;
+xcb_connection_t *gConnection;
 
 xcb_atom_t getAtomWithName(xcb_connection_t *connection, char *name)
 {
@@ -28,6 +31,14 @@ void drawClock(xcb_connection_t *connection, xcb_drawable_t dockWindow, xcb_gcon
     text[strlen(text)-1] = '\0'; // trim the newline off
     xcb_image_text_8(connection, strlen(text), dockWindow, graphicsContext, 10,20, text);
     xcb_flush(connection);
+}
+
+void* metronome(void * unused) {
+    while(1) {
+        sleep(1);
+        exposed(gConnection);
+    }
+    return NULL;
 }
 
 void buildDock(xcb_connection_t *connection, xcb_screen_t *screen, xcb_drawable_t rootWindow)
@@ -127,8 +138,9 @@ void buildDock(xcb_connection_t *connection, xcb_screen_t *screen, xcb_drawable_
     /* We flush the request */
     xcb_flush(connection);
 
-    drawClock(connection, dockWindow, graphicsContext);
-
+    pthread_t clockUpdater;
+    gConnection = connection;
+    pthread_create(&clockUpdater, NULL, &metronome, NULL);
 }
 
 void exposed(xcb_connection_t *connection) {
