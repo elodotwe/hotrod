@@ -46,8 +46,8 @@ void buildDock(xcb_connection_t *connection, xcb_screen_t *screen, xcb_drawable_
     graphicsContext = xcb_generate_id(connection);
     uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_BACKGROUND | XCB_GC_GRAPHICS_EXPOSURES;
     uint32_t values[3];
-    values[0] = screen->black_pixel;
-    values[1] = screen->white_pixel;
+    values[0] = screen->white_pixel;
+    values[1] = screen->black_pixel;
     values[2] = 0;
     xcb_create_gc(connection, graphicsContext, rootWindow, mask, values);
 
@@ -56,7 +56,7 @@ void buildDock(xcb_connection_t *connection, xcb_screen_t *screen, xcb_drawable_
 
     /* Create the window */
     mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-    values[0] = screen->white_pixel;
+    values[0] = screen->black_pixel;
     values[1] = XCB_EVENT_MASK_EXPOSURE;
     xcb_create_window(connection,                    /* Connection          */
                       XCB_COPY_FROM_PARENT,          /* depth               */
