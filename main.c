@@ -3,6 +3,7 @@
 
 #include <xcb/xcb.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "dock.h"
 
@@ -79,6 +80,18 @@ int main()
     case XCB_EXPOSE: {
       exposed(connection);
       break;
+    }
+    case XCB_BUTTON_RELEASE: {
+      xcb_button_press_event_t *buttonPressEvent = (xcb_button_press_event_t *) event;
+      printf("button\n");
+      if (!fork()) {
+        printf("EXECUTING XTERM\n");
+        system("xterm");
+        printf("DYING\n");
+        exit(0);
+        printf("STILL ALIVE?\n");
+      }
+      printf("CONTINUING");
     }
     default: {
       /* Unknown event type, ignore it */
